@@ -1,0 +1,34 @@
+Michael Chen
+michael.chen@email.com
+Phone: 555-234-5678
+
+SUMMARY
+Junior Developer with 2 years of experience in web development. Passionate about learning new technologies and building user-friendly applications.
+
+EDUCATION
+Bachelor of Science in Information Technology
+State University, 2021
+
+EXPERIENCE
+Junior Web Developer
+WebDev Studio | 2022 - Present
+- Developed responsive websites using HTML, CSS, JavaScript
+- Worked with React for frontend development
+- Collaborated with designers to implement UI/UX designs
+- Fixed bugs and maintained existing codebases
+
+Freelance Web Developer | 2021 - 2022
+- Built websites for small businesses
+- Provided technical support and maintenance
+- Learned various web technologies through self-study
+
+TECHNICAL SKILLS
+Languages: JavaScript, HTML, CSS, Python (basic)
+Frameworks: React, Bootstrap, jQuery
+Tools: Git, VS Code, Figma
+Databases: MySQL (basic knowledge)
+
+INTERESTS
+- Open source contribution
+- Learning new programming languages
+- Web design and user experience

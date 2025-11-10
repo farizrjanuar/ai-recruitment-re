@@ -1,0 +1,35 @@
+John Doe
+Email: john.doe@email.com
+Phone: +1-555-0123
+
+PROFESSIONAL SUMMARY
+Experienced Software Engineer with 5 years of experience in full-stack development. Proficient in Python, JavaScript, and modern web frameworks.
+
+EDUCATION
+Bachelor of Science in Computer Science
+Massachusetts Institute of Technology
+Graduated: 2018
+
+WORK EXPERIENCE
+Senior Software Engineer
+Tech Solutions Inc. | 2021 - Present
+- Led development of microservices architecture using Python and Flask
+- Implemented RESTful APIs serving 1M+ daily requests
+- Mentored junior developers and conducted code reviews
+
+Software Engineer
+Digital Innovations LLC | 2018 - 2021
+- Developed web applications using React and Node.js
+- Collaborated with cross-functional teams on agile projects
+- Optimized database queries improving performance by 40%
+
+TECHNICAL SKILLS
+Programming Languages: Python, JavaScript, Java, SQL
+Frameworks: Flask, Django, React, Node.js, Express
+Databases: PostgreSQL, MongoDB, MySQL, Redis
+Tools: Git, Docker, Kubernetes, Jenkins, AWS
+Soft Skills: Leadership, Problem Solving, Communication, Team Collaboration
+
+CERTIFICATIONS
+- AWS Certified Solutions Architect
+- Certified Kubernetes Administrator (CKA)

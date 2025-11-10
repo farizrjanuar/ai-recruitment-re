@@ -1,0 +1,39 @@
+Sarah Johnson
+sarah.johnson@email.com | (555) 987-6543
+
+OBJECTIVE
+Seeking a challenging position as a Data Scientist to leverage my machine learning expertise and analytical skills.
+
+EDUCATION
+Master of Science in Data Science
+Stanford University, 2020
+
+Bachelor of Science in Mathematics
+University of California, Berkeley, 2018
+
+PROFESSIONAL EXPERIENCE
+Data Scientist
+Analytics Corp | Jan 2020 - Present
+- Developed machine learning models for customer segmentation and churn prediction
+- Built NLP pipelines for sentiment analysis using spaCy and NLTK
+- Created data visualizations and dashboards using Python and Tableau
+- Improved model accuracy by 25% through feature engineering
+
+Data Analyst Intern
+Research Labs Inc. | Summer 2019
+- Analyzed large datasets using Python pandas and NumPy
+- Created statistical reports and presentations for stakeholders
+- Assisted in A/B testing and experimental design
+
+SKILLS
+Programming: Python, R, SQL, Java
+ML/AI: scikit-learn, TensorFlow, PyTorch, spaCy, NLTK
+Data Tools: pandas, NumPy, Matplotlib, Seaborn, Tableau
+Databases: PostgreSQL, MongoDB, MySQL
+Cloud: AWS, Google Cloud Platform
+Other: Git, Jupyter, Docker
+
+PROJECTS
+- Built a recommendation system using collaborative filtering
+- Developed a chatbot using NLP and deep learning
+- Created predictive models for stock price forecasting
