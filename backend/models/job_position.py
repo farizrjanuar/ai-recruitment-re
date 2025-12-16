@@ -33,9 +33,6 @@ class JobPosition(db.Model):
     # Status
     is_active = db.Column(db.Boolean, default=True, nullable=False, index=True)
     
-    # Foreign key to User (creator)
-    created_by = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
-    
     # Timestamps
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -43,19 +40,17 @@ class JobPosition(db.Model):
     # Relationships
     match_results = db.relationship('MatchResult', backref='job_position', lazy='dynamic', cascade='all, delete-orphan')
     
-    def __init__(self, title, description, created_by, **kwargs):
+    def __init__(self, title, description, **kwargs):
         """
         Initialize a new JobPosition instance.
         
         Args:
             title: Job title
             description: Job description
-            created_by: User ID of the creator
             **kwargs: Additional job attributes
         """
         self.title = title
         self.description = description
-        self.created_by = created_by
         
         # Initialize JSON fields as empty lists if not provided
         self.required_skills = kwargs.get('required_skills', [])
@@ -113,7 +108,7 @@ class JobPosition(db.Model):
         Convert JobPosition instance to dictionary representation.
         
         Args:
-            include_creator: Whether to include creator information
+            include_creator: Whether to include creator information (deprecated)
             
         Returns:
             dict: Job position data
@@ -127,13 +122,9 @@ class JobPosition(db.Model):
             'min_experience_years': self.min_experience_years,
             'education_level': self.education_level,
             'is_active': self.is_active,
-            'created_by': self.created_by,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
-        
-        if include_creator and self.creator:
-            data['creator'] = self.creator.to_dict()
         
         return data
     

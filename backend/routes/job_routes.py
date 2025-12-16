@@ -3,11 +3,8 @@ Job Position routes for creating, retrieving, updating, and managing job positio
 """
 
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity
-from functools import wraps
 
 from extensions import db
-from models.user import User
 from services.job_service import JobService
 
 job_bp = Blueprint('jobs', __name__)
@@ -16,47 +13,10 @@ job_bp = Blueprint('jobs', __name__)
 job_service = JobService()
 
 
-def hr_or_admin_required():
-    """
-    Decorator to require HR or Admin role for accessing endpoints.
-    Must be used after @jwt_required().
-    """
-    def wrapper(fn):
-        @wraps(fn)
-        def decorator(*args, **kwargs):
-            current_user_id = get_jwt_identity()
-            user = User.query.get(current_user_id)
-            
-            if not user:
-                return jsonify({
-                    'error': {
-                        'code': 'AUTH_TOKEN_INVALID',
-                        'message': 'User not found'
-                    }
-                }), 401
-            
-            if user.role not in ['HR', 'Admin']:
-                return jsonify({
-                    'error': {
-                        'code': 'AUTH_INSUFFICIENT_PERMISSIONS',
-                        'message': 'HR or Admin role required'
-                    }
-                }), 403
-            
-            return fn(*args, **kwargs)
-        return decorator
-    return wrapper
-
-
 @job_bp.route('', methods=['POST'])
-@jwt_required()
-@hr_or_admin_required()
 def create_job():
     """
     Create a new job position.
-    
-    Headers:
-        Authorization: Bearer <access_token>
     
     Request Body:
         {
@@ -71,11 +31,8 @@ def create_job():
     Returns:
         201: Job created successfully
         400: Validation error
-        401: Unauthorized
-        403: Insufficient permissions
     """
     try:
-        current_user_id = get_jwt_identity()
         data = request.get_json()
         
         # Validate request body
@@ -104,8 +61,8 @@ def create_job():
                 }
             }), 400
         
-        # Create job using service
-        job, error = job_service.create_job(data, current_user_id)
+        # Create job using service (without user_id)
+        job, error = job_service.create_job(data, None)
         
         if error:
             return jsonify({
@@ -131,20 +88,15 @@ def create_job():
 
 
 @job_bp.route('', methods=['GET'])
-@jwt_required()
 def list_jobs():
     """
     List all job positions.
-    
-    Headers:
-        Authorization: Bearer <access_token>
     
     Query Parameters:
         include_inactive: Include inactive jobs (default: false)
     
     Returns:
         200: List of job positions
-        401: Unauthorized
     """
     try:
         # Get query parameters
@@ -176,13 +128,9 @@ def list_jobs():
 
 
 @job_bp.route('/<job_id>', methods=['GET'])
-@jwt_required()
 def get_job(job_id):
     """
     Get a specific job position by ID.
-    
-    Headers:
-        Authorization: Bearer <access_token>
     
     Path Parameters:
         job_id: Job position ID
@@ -216,14 +164,9 @@ def get_job(job_id):
 
 
 @job_bp.route('/<job_id>', methods=['PUT'])
-@jwt_required()
-@hr_or_admin_required()
 def update_job(job_id):
     """
     Update an existing job position.
-    
-    Headers:
-        Authorization: Bearer <access_token>
     
     Path Parameters:
         job_id: Job position ID
@@ -292,15 +235,10 @@ def update_job(job_id):
         }), 500
 
 
-@job_bp.route('/<job_id>/deactivate', methods=['POST'])
-@jwt_required()
-@hr_or_admin_required()
+@job_bp.route('/<job_id>/deactivate', methods=['PUT'])
 def deactivate_job(job_id):
     """
     Deactivate a job position (soft delete).
-    
-    Headers:
-        Authorization: Bearer <access_token>
     
     Path Parameters:
         job_id: Job position ID
@@ -308,8 +246,6 @@ def deactivate_job(job_id):
     Returns:
         200: Job deactivated successfully
         404: Job not found
-        401: Unauthorized
-        403: Insufficient permissions
     """
     try:
         # Deactivate job using service
@@ -336,15 +272,10 @@ def deactivate_job(job_id):
         }), 500
 
 
-@job_bp.route('/<job_id>/activate', methods=['POST'])
-@jwt_required()
-@hr_or_admin_required()
+@job_bp.route('/<job_id>/activate', methods=['PUT'])
 def activate_job(job_id):
     """
     Activate a job position.
-    
-    Headers:
-        Authorization: Bearer <access_token>
     
     Path Parameters:
         job_id: Job position ID
@@ -352,8 +283,6 @@ def activate_job(job_id):
     Returns:
         200: Job activated successfully
         404: Job not found
-        401: Unauthorized
-        403: Insufficient permissions
     """
     try:
         # Activate job using service

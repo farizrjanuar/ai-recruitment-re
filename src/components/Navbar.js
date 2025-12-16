@@ -1,17 +1,9 @@
 import React from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { Link, useLocation } from 'react-router-dom';
 import './Navbar.css';
 
 const Navbar = () => {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
   const location = useLocation();
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
 
   const isActive = (path) => {
     return location.pathname === path || location.pathname.startsWith(path + '/');
@@ -49,14 +41,6 @@ const Navbar = () => {
           >
             Upload CV
           </Link>
-        </div>
-
-        <div className="navbar-user">
-          <span className="user-email">{user?.email}</span>
-          <span className="user-role">{user?.role}</span>
-          <button onClick={handleLogout} className="btn-logout">
-            Logout
-          </button>
         </div>
       </div>
     </nav>

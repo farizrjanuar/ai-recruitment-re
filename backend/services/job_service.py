@@ -110,13 +110,13 @@ class JobService:
                 'processing_error': str(e)
             }
     
-    def create_job(self, job_data: Dict, created_by: str) -> Tuple[Optional[JobPosition], Optional[str]]:
+    def create_job(self, job_data: Dict, created_by: Optional[str] = None) -> Tuple[Optional[JobPosition], Optional[str]]:
         """
         Create a new job position.
         
         Args:
             job_data: Dictionary containing job information
-            created_by: User ID of the creator
+            created_by: User ID of the creator (optional, deprecated)
             
         Returns:
             Tuple of (job_instance, error_message)
@@ -140,8 +140,7 @@ class JobService:
             # Create new job position instance
             job = JobPosition(
                 title=title,
-                description=description,
-                created_by=created_by
+                description=description
             )
             
             # Set skills (combine provided skills with extracted ones)

@@ -8,20 +8,6 @@ const api = axios.create({
   },
 });
 
-// Request interceptor to add JWT token to headers
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('access_token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
 // Response interceptor for error handling
 api.interceptors.response.use(
   (response) => {
@@ -29,14 +15,6 @@ api.interceptors.response.use(
   },
   (error) => {
     if (error.response) {
-      // Handle specific error codes
-      if (error.response.status === 401) {
-        // Token expired or invalid - clear token and redirect to login
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('user');
-        window.location.href = '/login';
-      }
-      
       // Return error message from backend
       const errorMessage = error.response.data?.error?.message || 
                           error.response.data?.message || 
