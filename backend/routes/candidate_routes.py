@@ -6,7 +6,6 @@ CV upload, candidate retrieval, and listing with filtering.
 """
 
 from flask import Blueprint, request, jsonify, current_app
-from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.utils import secure_filename
 
 from services.candidate_service import CandidateService
@@ -17,21 +16,17 @@ candidate_bp = Blueprint('candidate', __name__)
 
 
 @candidate_bp.route('/upload', methods=['POST'])
-@jwt_required()
 def upload_cv():
     """
     Upload and process a candidate CV.
     
     Endpoint: POST /api/candidates/upload
-    Headers: Authorization: Bearer <token>
     Request: multipart/form-data with 'cv_file' field
     
     Returns:
         JSON response with candidate_id and processing status
     """
     try:
-        # Get current user from JWT
-        current_user_id = get_jwt_identity()
         
         # Check if file is in request
         if 'cv_file' not in request.files:
@@ -143,13 +138,11 @@ def upload_cv():
 
 
 @candidate_bp.route('', methods=['GET'])
-@jwt_required()
 def list_candidates():
     """
     List all candidates with pagination and filtering.
     
     Endpoint: GET /api/candidates
-    Headers: Authorization: Bearer <token>
     Query Parameters:
         - page: Page number (default: 1)
         - limit: Items per page (default: 20, max: 100)
@@ -160,8 +153,6 @@ def list_candidates():
         JSON response with candidates list and pagination info
     """
     try:
-        # Get current user from JWT
-        current_user_id = get_jwt_identity()
         
         # Get query parameters
         page = request.args.get('page', 1, type=int)
@@ -232,13 +223,11 @@ def list_candidates():
 
 
 @candidate_bp.route('/<candidate_id>', methods=['GET'])
-@jwt_required()
 def get_candidate(candidate_id):
     """
     Get detailed information about a specific candidate.
     
     Endpoint: GET /api/candidates/<candidate_id>
-    Headers: Authorization: Bearer <token>
     Query Parameters:
         - include_raw_text: Include raw CV text (default: false)
     
@@ -246,8 +235,6 @@ def get_candidate(candidate_id):
         JSON response with complete candidate profile
     """
     try:
-        # Get current user from JWT
-        current_user_id = get_jwt_identity()
         
         # Get query parameters
         include_raw_text = request.args.get('include_raw_text', 'false').lower() == 'true'

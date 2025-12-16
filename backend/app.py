@@ -6,7 +6,7 @@ Main application factory and initialization.
 import os
 from flask import Flask, jsonify
 from config import config
-from extensions import db, jwt, cors
+from extensions import db, cors
 
 
 def create_app(config_name=None):
@@ -29,20 +29,17 @@ def create_app(config_name=None):
     
     # Initialize extensions with app
     db.init_app(app)
-    jwt.init_app(app)
     cors.init_app(app, origins=app.config['CORS_ORIGINS'])
     
     # Create upload folder if it doesn't exist
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
     
     # Register blueprints
-    from routes.auth_routes import auth_bp
     from routes.candidate_routes import candidate_bp
     from routes.job_routes import job_bp
     from routes.matching_routes import matching_bp
     from routes.dashboard_routes import dashboard_bp
     
-    app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(candidate_bp, url_prefix='/api/candidates')
     app.register_blueprint(job_bp, url_prefix='/api/jobs')
     app.register_blueprint(matching_bp, url_prefix='/api/matching')
@@ -67,47 +64,6 @@ def create_app(config_name=None):
             'status': 'active'
         }), 200
     
-    # JWT error handlers
-    @jwt.expired_token_loader
-    def expired_token_callback(jwt_header, jwt_payload):
-        """Handle expired JWT tokens."""
-        return jsonify({
-            'error': {
-                'code': 'AUTH_TOKEN_EXPIRED',
-                'message': 'The token has expired'
-            }
-        }), 401
-    
-    @jwt.invalid_token_loader
-    def invalid_token_callback(error):
-        """Handle invalid JWT tokens."""
-        return jsonify({
-            'error': {
-                'code': 'AUTH_TOKEN_INVALID',
-                'message': 'Invalid token'
-            }
-        }), 401
-    
-    @jwt.unauthorized_loader
-    def missing_token_callback(error):
-        """Handle missing JWT tokens."""
-        return jsonify({
-            'error': {
-                'code': 'AUTH_TOKEN_MISSING',
-                'message': 'Authorization token is required'
-            }
-        }), 401
-    
-    @jwt.revoked_token_loader
-    def revoked_token_callback(jwt_header, jwt_payload):
-        """Handle revoked JWT tokens."""
-        return jsonify({
-            'error': {
-                'code': 'AUTH_TOKEN_REVOKED',
-                'message': 'The token has been revoked'
-            }
-        }), 401
-    
     # Global error handlers
     @app.errorhandler(404)
     def not_found(error):
@@ -131,7 +87,7 @@ def create_app(config_name=None):
     
     # Import models to ensure they are registered with SQLAlchemy
     with app.app_context():
-        from models import User, Candidate, JobPosition, MatchResult
+        from models import Candidate, JobPosition, MatchResult
         db.create_all()
     
     return app

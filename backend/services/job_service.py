@@ -110,13 +110,13 @@ class JobService:
                 'processing_error': str(e)
             }
     
-    def create_job(self, job_data: Dict, created_by: str) -> Tuple[Optional[JobPosition], Optional[str]]:
+    def create_job(self, job_data: Dict, created_by: str = None) -> Tuple[Optional[JobPosition], Optional[str]]:
         """
         Create a new job position.
         
         Args:
             job_data: Dictionary containing job information
-            created_by: User ID of the creator
+            created_by: User ID of the creator (deprecated, kept for compatibility)
             
         Returns:
             Tuple of (job_instance, error_message)
@@ -137,11 +137,10 @@ class JobService:
             # Process job description to extract additional insights
             processed_data = self.process_job_description(description)
             
-            # Create new job position instance
+            # Create new job position instance (without created_by)
             job = JobPosition(
                 title=title,
-                description=description,
-                created_by=created_by
+                description=description
             )
             
             # Set skills (combine provided skills with extracted ones)
@@ -226,14 +225,14 @@ class JobService:
         except Exception as e:
             return None, f"Failed to list job positions: {str(e)}"
     
-    def update_job(self, job_id: str, job_data: Dict, user_id: str) -> Tuple[Optional[JobPosition], Optional[str]]:
+    def update_job(self, job_id: str, job_data: Dict, user_id: str = None) -> Tuple[Optional[JobPosition], Optional[str]]:
         """
         Update an existing job position.
         
         Args:
             job_id: Job position's unique identifier
             job_data: Dictionary containing fields to update
-            user_id: User ID making the update (for authorization)
+            user_id: User ID making the update (deprecated, kept for compatibility)
             
         Returns:
             Tuple of (job_instance, error_message)

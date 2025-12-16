@@ -4,7 +4,7 @@ Handles table creation, indexes, and development seed data.
 """
 
 from extensions import db
-from models import User, Candidate, JobPosition, MatchResult
+from models import Candidate, JobPosition, MatchResult
 
 
 def init_database(app):
@@ -35,37 +35,17 @@ def seed_database(app):
     """
     with app.app_context():
         # Check if data already exists
-        if User.query.first() is not None:
+        if JobPosition.query.first() is not None:
             print("⚠ Database already contains data. Skipping seed.")
             return
         
         print("Seeding database with sample data...")
         
-        # Create sample users
-        admin_user = User(
-            email='admin@recruitment.com',
-            password='admin123',
-            role='Admin'
-        )
-        
-        hr_user = User(
-            email='hr@recruitment.com',
-            password='hr123',
-            role='HR'
-        )
-        
-        db.session.add(admin_user)
-        db.session.add(hr_user)
-        db.session.commit()
-        
-        print("✓ Created 2 sample users (admin@recruitment.com, hr@recruitment.com)")
-        
-        # Create sample job positions
+        # Create sample job positions (without created_by)
         job1 = JobPosition(
             title='Senior Python Developer',
             description='We are looking for an experienced Python developer to join our backend team. '
                        'The ideal candidate will have strong experience with Flask, Django, and RESTful APIs.',
-            created_by=hr_user.id,
             required_skills=['Python', 'Flask', 'REST API', 'SQL'],
             preferred_skills=['Docker', 'AWS', 'Redis', 'Celery'],
             min_experience_years=5,
@@ -76,7 +56,6 @@ def seed_database(app):
             title='Machine Learning Engineer',
             description='Join our AI team to build cutting-edge machine learning models. '
                        'Experience with NLP and deep learning frameworks required.',
-            created_by=admin_user.id,
             required_skills=['Python', 'TensorFlow', 'PyTorch', 'Machine Learning', 'NLP'],
             preferred_skills=['spaCy', 'Transformers', 'Kubernetes', 'MLOps'],
             min_experience_years=3,
@@ -87,7 +66,6 @@ def seed_database(app):
             title='Frontend Developer',
             description='We need a talented frontend developer to create beautiful and responsive user interfaces. '
                        'Strong React skills are essential.',
-            created_by=hr_user.id,
             required_skills=['JavaScript', 'React', 'HTML', 'CSS'],
             preferred_skills=['TypeScript', 'Redux', 'Next.js', 'Tailwind CSS'],
             min_experience_years=2,

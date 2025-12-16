@@ -4,7 +4,6 @@ Handles environment-specific settings and application configuration.
 """
 
 import os
-from datetime import timedelta
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -21,11 +20,6 @@ class Config:
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///recruitment.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = False
-    
-    # JWT Configuration
-    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or 'jwt-secret-key-change-in-production'
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=24)
-    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
     
     # File Upload Configuration
     MAX_FILE_SIZE = int(os.environ.get('MAX_FILE_SIZE', 5 * 1024 * 1024))  # 5MB default
@@ -61,8 +55,6 @@ class ProductionConfig(Config):
         """Initialize production-specific settings."""
         if cls.SECRET_KEY == 'dev-secret-key-change-in-production':
             raise ValueError("SECRET_KEY must be set in production environment")
-        if cls.JWT_SECRET_KEY == 'jwt-secret-key-change-in-production':
-            raise ValueError("JWT_SECRET_KEY must be set in production environment")
 
 
 class TestingConfig(Config):

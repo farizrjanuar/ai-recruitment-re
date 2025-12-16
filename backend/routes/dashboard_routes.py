@@ -4,56 +4,16 @@ Provides endpoints for retrieving recruitment metrics and data visualizations.
 """
 
 from flask import Blueprint, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity
-from functools import wraps
 
-from models.user import User
 from services.dashboard_service import DashboardService
 
 dashboard_bp = Blueprint('dashboard', __name__)
 
 
-def hr_or_admin_required():
-    """
-    Decorator to require HR or Admin role for accessing endpoints.
-    Must be used after @jwt_required().
-    """
-    def wrapper(fn):
-        @wraps(fn)
-        def decorator(*args, **kwargs):
-            current_user_id = get_jwt_identity()
-            user = User.query.get(current_user_id)
-            
-            if not user:
-                return jsonify({
-                    'error': {
-                        'code': 'AUTH_TOKEN_INVALID',
-                        'message': 'User not found'
-                    }
-                }), 401
-            
-            if user.role not in ['HR', 'Admin']:
-                return jsonify({
-                    'error': {
-                        'code': 'AUTH_INSUFFICIENT_PERMISSIONS',
-                        'message': 'HR or Admin role required'
-                    }
-                }), 403
-            
-            return fn(*args, **kwargs)
-        return decorator
-    return wrapper
-
-
 @dashboard_bp.route('/stats', methods=['GET'])
-@jwt_required()
-@hr_or_admin_required()
 def get_statistics():
     """
     Get overall recruitment statistics for the dashboard.
-    
-    Headers:
-        Authorization: Bearer <access_token>
     
     Returns:
         200: Statistics data
@@ -64,8 +24,6 @@ def get_statistics():
                 "qualified_candidates": 45,
                 "recent_uploads": 8
             }
-        401: Unauthorized
-        403: Insufficient permissions
         500: Internal server error
     
     Requirements: 7.1, 7.5
@@ -86,14 +44,9 @@ def get_statistics():
 
 
 @dashboard_bp.route('/analytics', methods=['GET'])
-@jwt_required()
-@hr_or_admin_required()
 def get_analytics():
     """
     Get detailed analytics data for visualizations.
-    
-    Headers:
-        Authorization: Bearer <access_token>
     
     Returns:
         200: Analytics data
@@ -119,8 +72,6 @@ def get_analytics():
                     "81-100": 20
                 }
             }
-        401: Unauthorized
-        403: Insufficient permissions
         500: Internal server error
     
     Requirements: 7.1, 7.5

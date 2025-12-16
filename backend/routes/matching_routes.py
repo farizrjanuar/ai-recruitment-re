@@ -5,7 +5,6 @@ This module provides REST API endpoints for candidate-job matching operations.
 """
 
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import jwt_required, get_jwt_identity
 from services.matching_service import MatchingService
 
 
@@ -17,20 +16,15 @@ matching_service = MatchingService()
 
 
 @matching_bp.route('/calculate/<candidate_id>', methods=['POST'])
-@jwt_required()
 def calculate_matches(candidate_id):
     """
     Calculate match scores for a candidate against all active job positions.
     
     POST /api/matching/calculate/:candidate_id
     
-    Headers:
-        Authorization: Bearer <JWT token>
-    
     Returns:
         200: Match results calculated successfully
         400: Invalid request or candidate data incomplete
-        401: Unauthorized (invalid/missing token)
         404: Candidate not found
         500: Internal server error
     """
@@ -74,15 +68,11 @@ def calculate_matches(candidate_id):
 
 
 @matching_bp.route('/job/<job_id>', methods=['GET'])
-@jwt_required()
 def get_job_candidates(job_id):
     """
     Get ranked list of candidates for a specific job position.
     
     GET /api/matching/job/:job_id
-    
-    Headers:
-        Authorization: Bearer <JWT token>
     
     Query Parameters:
         min_score (optional): Minimum match score threshold (0-100)
@@ -93,7 +83,6 @@ def get_job_candidates(job_id):
     Returns:
         200: Candidate matches retrieved successfully
         400: Invalid query parameters
-        401: Unauthorized (invalid/missing token)
         404: Job position not found
         500: Internal server error
     """
@@ -185,15 +174,11 @@ def get_job_candidates(job_id):
 
 
 @matching_bp.route('/candidate/<candidate_id>', methods=['GET'])
-@jwt_required()
 def get_candidate_matches(candidate_id):
     """
     Get all match results for a specific candidate.
     
     GET /api/matching/candidate/:candidate_id
-    
-    Headers:
-        Authorization: Bearer <JWT token>
     
     Query Parameters:
         min_score (optional): Minimum match score threshold (0-100)
@@ -201,7 +186,6 @@ def get_candidate_matches(candidate_id):
     Returns:
         200: Match results retrieved successfully
         400: Invalid query parameters
-        401: Unauthorized (invalid/missing token)
         404: Candidate not found
         500: Internal server error
     """
@@ -268,20 +252,15 @@ def get_candidate_matches(candidate_id):
 
 
 @matching_bp.route('/single/<candidate_id>/<job_id>', methods=['POST'])
-@jwt_required()
 def calculate_single_match(candidate_id, job_id):
     """
     Calculate match score for a specific candidate-job pair.
     
     POST /api/matching/single/:candidate_id/:job_id
     
-    Headers:
-        Authorization: Bearer <JWT token>
-    
     Returns:
         200: Match calculated successfully
         400: Invalid request or incomplete data
-        401: Unauthorized (invalid/missing token)
         404: Candidate or job not found
         500: Internal server error
     """
