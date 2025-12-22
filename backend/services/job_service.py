@@ -335,3 +335,32 @@ class JobService:
         except Exception as e:
             db.session.rollback()
             return False, f"Failed to activate job position: {str(e)}"
+    
+    def delete_job(self, job_id: str) -> Tuple[bool, Optional[str]]:
+        """
+        Delete a job position permanently from database.
+        Also deletes all related match results (cascade delete).
+        
+        Args:
+            job_id: Job position's unique identifier
+            
+        Returns:
+            Tuple of (success, error_message)
+            - success: True if deleted, False otherwise
+            - error_message: None if successful, error description if failed
+        """
+        try:
+            job = JobPosition.query.get(job_id)
+            
+            if not job:
+                return False, f"Job position with ID {job_id} not found"
+            
+            # Delete the job (cascade will handle match_results)
+            db.session.delete(job)
+            db.session.commit()
+            
+            return True, None
+            
+        except Exception as e:
+            db.session.rollback()
+            return False, f"Failed to delete job position: {str(e)}"

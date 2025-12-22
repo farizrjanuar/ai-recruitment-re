@@ -1,0 +1,36 @@
+RINA SUSANTI
+Email: rina.susanti@email.com
+Phone: +62-812-3456-7890
+
+EDUCATION
+Undergraduate Informatics
+Universitas Telkom
+Graduated: 2026
+
+Bachelor of Science in Computer Science
+Massachusetts Institute of Technology
+Graduated: 2020
+
+Master of Business Administration
+Harvard Business School
+Graduated: 2022
+
+EXPERIENCE
+Junior Software Developer
+PT Tech Indonesia | 2022 - Present
+- Developed web applications using React and Python
+- Collaborated with senior developers on API design
+
+Intern Developer
+PT Digital Solutions | 2021 - 2022
+- Assisted in mobile app development
+- Participated in agile team meetings
+
+SKILLS
+Programming: Python, JavaScript, Java, React
+Databases: MySQL, PostgreSQL, MongoDB
+Tools: Git, Docker, VS Code
+
+CERTIFICATIONS
+- Oracle Certified Java Programmer
+- AWS Cloud Practitioner

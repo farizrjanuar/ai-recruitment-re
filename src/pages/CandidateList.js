@@ -36,6 +36,20 @@ const CandidateList = () => {
     }
   };
 
+  const handleDeleteCandidate = async (candidateId, candidateName) => {
+    if (!window.confirm(`Are you sure you want to delete "${candidateName}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      await candidateAPI.deleteCandidate(candidateId);
+      // Refresh the candidate list
+      fetchCandidates();
+    } catch (err) {
+      setError(err.message || 'Failed to delete candidate');
+    }
+  };
+
   const totalPages = Math.ceil(total / limit);
 
   const getStatusBadge = (status) => {
@@ -112,12 +126,15 @@ const CandidateList = () => {
                     <td>
                       <div className="skills-preview">
                         {candidate.skills && candidate.skills.length > 0
-                          ? candidate.skills.slice(0, 3).join(', ') +
+                          ? candidate.skills
+                              .slice(0, 3)
+                              .map(skill => typeof skill === 'object' ? skill.name : skill)
+                              .join(', ') +
                             (candidate.skills.length > 3 ? '...' : '')
                           : 'N/A'}
                       </div>
                     </td>
-                    <td>{candidate.experience_years || 0} years</td>
+                    <td>{candidate.total_experience_years || 0} years</td>
                     <td>{getStatusBadge(candidate.status)}</td>
                     <td>
                       {candidate.created_at
@@ -131,6 +148,13 @@ const CandidateList = () => {
                       >
                         View
                       </Link>
+                      <button
+                        onClick={() => handleDeleteCandidate(candidate.id, candidate.name)}
+                        className="btn-delete"
+                        style={{ marginLeft: '8px' }}
+                      >
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 ))}

@@ -106,7 +106,8 @@
 }
 
 .btn-view,
-.btn-edit {
+.btn-edit,
+.btn-delete {
   flex: 1;
   padding: 10px;
   text-align: center;
@@ -115,6 +116,8 @@
   font-size: 14px;
   font-weight: 600;
   transition: background 0.3s;
+  border: none;
+  cursor: pointer;
 }
 
 .btn-view {
@@ -133,6 +136,15 @@
 
 .btn-edit:hover {
   background: #5a6268;
+}
+
+.btn-delete {
+  background: #dc3545;
+  color: white;
+}
+
+.btn-delete:hover {
+  background: #c82333;
 }
 
 .btn-primary {

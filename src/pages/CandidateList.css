@@ -101,18 +101,32 @@
   color: #721c24;
 }
 
-.btn-view {
+.btn-view,
+.btn-delete {
   padding: 6px 16px;
-  background: #667eea;
   color: white;
   text-decoration: none;
   border-radius: 5px;
   font-size: 14px;
   transition: background 0.3s;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-view {
+  background: #667eea;
 }
 
 .btn-view:hover {
   background: #5568d3;
+}
+
+.btn-delete {
+  background: #dc3545;
+}
+
+.btn-delete:hover {
+  background: #c82333;
 }
 
 .pagination {

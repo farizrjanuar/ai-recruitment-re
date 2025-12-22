@@ -26,6 +26,20 @@ const JobList = () => {
     }
   };
 
+  const handleDeleteJob = async (jobId, jobTitle) => {
+    if (!window.confirm(`Are you sure you want to delete "${jobTitle}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      await jobAPI.deleteJob(jobId);
+      // Refresh the job list
+      fetchJobs();
+    } catch (err) {
+      setError(err.message || 'Failed to delete job position');
+    }
+  };
+
   return (
     <div className="job-list-container">
       <div className="job-list-header">
@@ -105,6 +119,12 @@ const JobList = () => {
                 <Link to={`/jobs/${job.id}/edit`} className="btn-edit">
                   Edit
                 </Link>
+                <button 
+                  onClick={() => handleDeleteJob(job.id, job.title)} 
+                  className="btn-delete"
+                >
+                  Delete
+                </button>
               </div>
             </div>
           ))}

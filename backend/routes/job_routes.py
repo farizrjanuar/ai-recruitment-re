@@ -62,7 +62,7 @@ def create_job():
             }), 400
         
         # Create job using service
-        job, error = job_service.create_job(data, creator_id=None)
+        job, error = job_service.create_job(data, created_by=None)
         
         if error:
             return jsonify({
@@ -199,7 +199,7 @@ def update_job(job_id):
             }), 400
         
         # Update job using service
-        job, error = job_service.update_job(job_id, data, creator_id=None)
+        job, error = job_service.update_job(job_id, data, user_id=None)
         
         if error:
             if 'not found' in error.lower():
@@ -301,5 +301,52 @@ def activate_job(job_id):
             'error': {
                 'code': 'INTERNAL_ERROR',
                 'message': f'Failed to activate job position: {str(e)}'
+            }
+        }), 500
+
+
+@job_bp.route('/<job_id>', methods=['DELETE'])
+def delete_job(job_id):
+    """
+    Delete a job position permanently.
+    
+    Path Parameters:
+        job_id: Job position ID
+    
+    Returns:
+        200: Job deleted successfully
+        404: Job not found
+        500: Internal server error
+    """
+    try:
+        # Delete job using service
+        success, error = job_service.delete_job(job_id)
+        
+        if not success:
+            if 'not found' in error.lower():
+                return jsonify({
+                    'error': {
+                        'code': 'JOB_NOT_FOUND',
+                        'message': error
+                    }
+                }), 404
+            else:
+                return jsonify({
+                    'error': {
+                        'code': 'DELETE_ERROR',
+                        'message': error
+                    }
+                }), 500
+        
+        return jsonify({
+            'message': 'Job position deleted successfully',
+            'job_id': job_id
+        }), 200
+        
+    except Exception as e:
+        return jsonify({
+            'error': {
+                'code': 'INTERNAL_ERROR',
+                'message': f'Failed to delete job position: {str(e)}'
             }
         }), 500

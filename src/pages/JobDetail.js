@@ -54,6 +54,19 @@ const JobDetail = () => {
     }
   };
 
+  const handleDeleteJob = async () => {
+    if (!window.confirm(`Are you sure you want to delete "${job.title}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      await jobAPI.deleteJob(id);
+      navigate('/jobs');
+    } catch (err) {
+      setError(err.message || 'Failed to delete job position');
+    }
+  };
+
   const getMatchScoreColor = (score) => {
     if (score >= 80) return '#4caf50';
     if (score >= 60) return '#ff9800';
@@ -110,6 +123,9 @@ const JobDetail = () => {
           <Link to={`/jobs/${id}/edit`} className="btn-edit">
             Edit Job
           </Link>
+          <button onClick={handleDeleteJob} className="btn-delete">
+            Delete Job
+          </button>
         </div>
       </div>
 
@@ -223,7 +239,7 @@ const JobDetail = () => {
                 <div className="candidate-header">
                   <div>
                     <Link to={`/candidates/${candidate.candidate_id}`} className="candidate-name">
-                      {candidate.name || 'Unknown'}
+                      {candidate.candidate_name || 'Unknown'}
                     </Link>
                     {getQualificationBadge(candidate.status)}
                   </div>
@@ -239,19 +255,19 @@ const JobDetail = () => {
                   <div className="breakdown-item">
                     <span className="breakdown-label">Skills:</span>
                     <span className="breakdown-value">
-                      {Math.round(candidate.breakdown?.skill_match || 0)}
+                      {Math.round(candidate.skill_match_score || candidate.skill_match || 0)}
                     </span>
                   </div>
                   <div className="breakdown-item">
                     <span className="breakdown-label">Experience:</span>
                     <span className="breakdown-value">
-                      {Math.round(candidate.breakdown?.experience_match || 0)}
+                      {Math.round(candidate.experience_match_score || candidate.experience_match || 0)}
                     </span>
                   </div>
                   <div className="breakdown-item">
                     <span className="breakdown-label">Education:</span>
                     <span className="breakdown-value">
-                      {Math.round(candidate.breakdown?.education_match || 0)}
+                      {Math.round(candidate.education_match_score || candidate.education_match || 0)}
                     </span>
                   </div>
                 </div>

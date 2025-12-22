@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import candidateAPI from '../services/candidateAPI';
 import './CandidateDetail.css';
 
 const CandidateDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [candidate, setCandidate] = useState(null);
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -43,6 +44,19 @@ const CandidateDetail = () => {
       console.error('Failed to load matches:', err);
     } finally {
       setLoadingMatches(false);
+    }
+  };
+
+  const handleDeleteCandidate = async () => {
+    if (!window.confirm(`Are you sure you want to delete "${candidate.name}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      await candidateAPI.deleteCandidate(id);
+      navigate('/candidates');
+    } catch (err) {
+      setError(err.message || 'Failed to delete candidate');
     }
   };
 
@@ -98,7 +112,11 @@ const CandidateDetail = () => {
         <Link to="/candidates" className="btn-back">
           ← Back to Candidates
         </Link>
-        <h2>Candidate Profile</h2>
+        <div className="header-actions">
+          <button onClick={handleDeleteCandidate} className="btn-delete">
+            Delete Candidate
+          </button>
+        </div>
       </div>
 
       <div className="detail-grid">
@@ -139,6 +157,7 @@ const CandidateDetail = () => {
               {candidate.education.map((edu, index) => (
                 <div key={index} className="education-item">
                   <div className="edu-degree">{edu.degree || 'Degree'}</div>
+                  {edu.field && <div className="edu-field">{edu.field}</div>}
                   <div className="edu-institution">
                     {edu.institution || 'Institution'}
                   </div>

@@ -38,6 +38,12 @@ const jobAPI = {
     const response = await api.get(`/matching/job/${jobId}?${queryParams.toString()}`);
     return response.data;
   },
+
+  // Delete job position
+  deleteJob: async (jobId) => {
+    const response = await api.delete(`/jobs/${jobId}`);
+    return response.data;
+  },
 };
 
 export default jobAPI;

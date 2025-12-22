@@ -44,6 +44,12 @@ const candidateAPI = {
     const response = await api.post(`/matching/calculate/${candidateId}`);
     return response.data;
   },
+
+  // Delete candidate
+  deleteCandidate: async (candidateId) => {
+    const response = await api.delete(`/candidates/${candidateId}`);
+    return response.data;
+  },
 };
 
 export default candidateAPI;

@@ -118,8 +118,10 @@ class CVParserService:
         Extract candidate name from CV text.
         
         Strategy:
-        1. Look for PERSON entities in the first few lines (likely to be the name)
-        2. Use heuristics to identify the most likely name
+        1. Check first few lines for all-caps names (common CV format)
+        2. Look for PERSON entities using spaCy NER
+        3. Use heuristics to identify the most likely name
+        4. Try first non-empty line if it looks like a name
         
         Args:
             text: CV text
@@ -129,8 +131,42 @@ class CVParserService:
         """
         # Get first 500 characters (name is usually at the top)
         header_text = text[:500]
+        lines = text.split('\n')
         
-        # Process with spaCy
+        # Strategy 1: Check first non-empty line if it looks like a simple name (2-4 words, alphabetic)
+        for i, line in enumerate(lines[:3]):
+            line = line.strip()
+            
+            # Skip empty lines
+            if not line:
+                continue
+            
+            # Check if line looks like a simple name (2-4 words, mostly alphabetic)
+            words = line.split()
+            if 2 <= len(words) <= 4:
+                # Check if all words are alphabetic (allow dots for middle initials)
+                if all(word.replace('.', '').replace(',', '').replace("'", '').isalpha() for word in words):
+                    # Check it's not too long
+                    if len(line) <= 50:
+                        return ' '.join(words)
+        
+        # Strategy 2: Check first few lines for all-caps names (common CV format)
+        for i, line in enumerate(lines[:5]):
+            line = line.strip()
+            
+            # Skip empty lines
+            if not line:
+                continue
+            
+            # Check if line is mostly uppercase and looks like a name
+            words = line.split()
+            if len(words) >= 2 and line.isupper():
+                # Check if all words are alphabetic (with spaces)
+                if all(word.replace('.', '').replace(',', '').isalpha() for word in words):
+                    # This is likely a name in all caps
+                    return ' '.join(words)
+        
+        # Strategy 3: Use spaCy NER for PERSON entities
         doc = self.nlp(header_text)
         
         # Extract PERSON entities
@@ -138,21 +174,73 @@ class CVParserService:
         
         if person_entities:
             # Return the first person entity found
-            # Clean up the name (remove extra whitespace)
+            # Clean up the name (remove extra whitespace and common non-name words)
             name = ' '.join(person_entities[0].split())
-            return name
+            # Remove common suffix words that shouldn't be in names
+            name_words = name.split()
+            filtered_words = [w for w in name_words if w.lower() not in 
+                            ['email', 'phone', 'tel', 'fax', 'mobile', 'address', 'cv', 'resume']]
+            if len(filtered_words) >= 2:
+                return ' '.join(filtered_words)
+            elif len(filtered_words) == 1 and len(name_words) == 1:
+                return filtered_words[0]
         
-        # Fallback: Try to find name in first non-empty line
+        # Strategy 3: Try to find name in first non-empty line with heuristics
         lines = text.split('\n')
-        for line in lines[:5]:  # Check first 5 lines
+        for i, line in enumerate(lines[:10]):  # Check first 10 lines
             line = line.strip()
-            if line and len(line) < 50:  # Name shouldn't be too long
-                # Check if it looks like a name (2-4 words, mostly alphabetic)
-                words = line.split()
-                if 2 <= len(words) <= 4:
-                    # Check if words are mostly alphabetic
-                    if all(word.replace('.', '').replace(',', '').isalpha() for word in words):
-                        return line
+            
+            # Skip empty lines
+            if not line:
+                continue
+            
+            # Skip lines that look like section headers or labels
+            line_lower = line.lower()
+            skip_keywords = ['curriculum', 'vitae', 'resume', 'cv', 'email', 'phone', 
+                           'address', 'objective', 'summary', 'professional', 'profile', 
+                           'contact', 'personal', 'information']
+            if any(keyword in line_lower for keyword in skip_keywords):
+                continue
+            
+            # Name should be reasonably short
+            if len(line) > 60:
+                continue
+            
+            # Check if line contains email or phone (skip if it does)
+            if '@' in line or re.search(r'\d{3}[-.\s]?\d{3}[-.\s]?\d{4}', line):
+                continue
+            
+            # Check if it looks like a name (1-4 words, mostly alphabetic)
+            words = line.split()
+            if 1 <= len(words) <= 4:
+                # Check if words are mostly alphabetic (allow dots and commas for middle initials)
+                valid_words = []
+                for word in words:
+                    clean_word = word.replace('.', '').replace(',', '').replace("'", '')
+                    if clean_word and (clean_word.isalpha() or 
+                                     (len(clean_word) <= 3 and any(c.isalpha() for c in clean_word))):
+                        valid_words.append(word)
+                
+                # If at least 2 valid words that look like names, use it
+                if len(valid_words) >= 2:
+                    # Remove common non-name words
+                    filtered_words = [w for w in valid_words if w.lower() not in 
+                                    ['email', 'phone', 'tel', 'fax', 'mobile', 'address']]
+                    if len(filtered_words) >= 2:
+                        return ' '.join(filtered_words)
+                    elif len(valid_words) >= 2:
+                        return ' '.join(valid_words[:2])  # Take first 2 words only
+                # If first line and at least 1 valid word, might be single name
+                elif i == 0 and len(valid_words) >= 1:
+                    return ' '.join(valid_words)
+        
+        # Fallback 2: Look for "Name:" or "Candidate:" pattern
+        name_pattern = r'(?:name|candidate)[\s:]+([A-Z][a-zA-Z\s.]+?)(?:\n|email|phone|$)'
+        match = re.search(name_pattern, text[:500], re.IGNORECASE)
+        if match:
+            name = match.group(1).strip()
+            if 2 <= len(name.split()) <= 4:
+                return name
         
         return None
     
@@ -178,7 +266,7 @@ class CVParserService:
         degree_patterns = [
             r'\b(Ph\.?D\.?|Doctor of Philosophy|Doctorate)\b',
             r'\b(Master[\'s]*|M\.?S\.?|M\.?A\.?|MBA|M\.?Tech|M\.?Eng)\b',
-            r'\b(Bachelor[\'s]*|B\.?S\.?|B\.?A\.?|B\.?Tech|B\.?Eng)\b',
+            r'\b(Bachelor[\'s]*|B\.?S\.?|B\.?A\.?|B\.?Tech|B\.?Eng|Undergraduate)\b',
             r'\b(Associate[\'s]*|A\.?S\.?|A\.?A\.?)\b',
             r'\b(Diploma|Certificate)\b',
         ]
@@ -191,6 +279,7 @@ class CVParserService:
             'master': "Master's",
             'mba': "Master's",
             'bachelor': "Bachelor's",
+            'undergraduate': "Bachelor's",
             'associate': "Associate's",
             'diploma': 'Diploma',
             'certificate': 'Certificate'
@@ -224,9 +313,42 @@ class CVParserService:
                     
                     # Find institution in context
                     institution = None
-                    context_orgs = [ent.text for ent in self.nlp(context).ents if ent.label_ == "ORG"]
-                    if context_orgs:
-                        institution = context_orgs[0]
+                    
+                    # First, try to find university/college patterns
+                    university_patterns = [
+                        r'(Universitas\s+[A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)?)',  # Universitas Telkom
+                        r'(University\s+of\s+[A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)?)',  # University of X
+                        r'([A-Z][a-zA-Z]+\s+University)',  # X University
+                        r'(Institut\s+[A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)?)',  # Institut Teknologi
+                        r'([A-Z][a-zA-Z]+\s+Institute)',  # X Institute
+                        r'([A-Z][a-zA-Z]+\s+College)',  # X College
+                    ]
+                    
+                    for uni_pattern in university_patterns:
+                        uni_matches = re.findall(uni_pattern, context, re.IGNORECASE)
+                        if uni_matches:
+                            # Get the first university match and clean it
+                            institution = uni_matches[0].strip()
+                            # Remove trailing punctuation, line breaks, and extra whitespace
+                            institution = re.sub(r'[\n\r]+', ' ', institution)  # Replace newlines with space
+                            institution = re.sub(r'\s+', ' ', institution)  # Normalize whitespace
+                            institution = re.sub(r'[\s\-–,;.]+$', '', institution)
+                            break
+                    
+                    # If no university pattern found, use ORG entities but filter carefully
+                    if not institution:
+                        context_orgs = [ent.text for ent in self.nlp(context).ents if ent.label_ == "ORG"]
+                        # Filter out obvious non-institution orgs
+                        for org in context_orgs:
+                            org_lower = org.lower()
+                            # Skip if it looks like a degree program name
+                            if any(deg in org_lower for deg in ['undergraduate', 'bachelor', 'master', 'phd', 'informatics', 'engineering', 'science', 'student', 'association']):
+                                continue
+                            # Must have at least 2 words to be a valid institution
+                            if len(org.split()) < 2:
+                                continue
+                            institution = org
+                            break
                     
                     # Find year in context
                     year = None
@@ -235,11 +357,52 @@ class CVParserService:
                         # Take the most recent year
                         year = max(context_years)
                     
+                    # Extract field of study/major/program
+                    field = None
+                    
+                    # Strategy 1: Look for field right after degree (e.g., "Undergraduate Informatics", "Bachelor Computer Science")
+                    # Get the line containing the degree
+                    degree_lines = [line for line in context.split('\n') if degree.lower() in line.lower()]
+                    if degree_lines:
+                        degree_line = degree_lines[0].strip()
+                        # Try to extract field from the same line as degree
+                        # Pattern: degree_word followed by potential field name
+                        simple_pattern = r'\b' + re.escape(degree) + r'\s+([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)?)\b'
+                        simple_match = re.search(simple_pattern, degree_line, re.IGNORECASE)
+                        if simple_match:
+                            potential_field = simple_match.group(1).strip()
+                            # Filter out if it's an institution keyword
+                            if not any(word in potential_field.lower() for word in ['university', 'universitas', 'institute', 'institut', 'college', 'school']):
+                                field = potential_field
+                    
+                    # Strategy 2: Look for "in/of" patterns (e.g., "Bachelor of Science in Computer Science")
+                    if not field:
+                        field_patterns = [
+                            r'(?:in|of)\s+([A-Z][a-zA-Z\s]+?)(?:\s*,|\s*\n|\s+at|\s+from|\s+\-)',
+                        ]
+                        
+                        for field_pattern in field_patterns:
+                            field_matches = re.findall(field_pattern, context, re.IGNORECASE)
+                            if field_matches:
+                                field = field_matches[0].strip()
+                                # Clean up the field - remove common noise words
+                                field = re.sub(r'\b(degree|program|major|concentration|specialization|science)\b', '', field, flags=re.IGNORECASE).strip()
+                                # Remove trailing punctuation
+                                field = re.sub(r'[\s\-–,;.]+$', '', field)
+                                # Only accept if it's not the institution name and has reasonable length
+                                if field and len(field) > 2 and len(field) < 50:
+                                    break
+                                else:
+                                    field = None
+                            else:
+                                field = None
+                    
                     # Determine education level
                     education_level = self._determine_education_level(degree, degree_level_map)
                     
                     education_entry = {
                         'degree': degree,
+                        'field': field,
                         'institution': institution,
                         'year': int(year) if year else None,
                         'level': education_level

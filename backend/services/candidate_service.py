@@ -344,3 +344,32 @@ class CandidateService:
                 os.remove(file_path)
         except Exception as e:
             print(f"Warning: Failed to delete file {file_path}: {str(e)}")
+    
+    def delete_candidate(self, candidate_id: str) -> Tuple[bool, Optional[str]]:
+        """
+        Delete a candidate permanently from database.
+        Also deletes all related match results (cascade delete).
+        
+        Args:
+            candidate_id: Candidate's unique identifier
+            
+        Returns:
+            Tuple of (success, error_message)
+            - success: True if deleted, False otherwise
+            - error_message: None if successful, error description if failed
+        """
+        try:
+            candidate = Candidate.query.get(candidate_id)
+            
+            if not candidate:
+                return False, f"Candidate with ID {candidate_id} not found"
+            
+            # Delete the candidate (cascade will handle match_results)
+            db.session.delete(candidate)
+            db.session.commit()
+            
+            return True, None
+            
+        except Exception as e:
+            db.session.rollback()
+            return False, f"Failed to delete candidate: {str(e)}"

@@ -115,11 +115,23 @@ def upload_cv():
         # (we store the text in database, don't need the file anymore)
         candidate_service.delete_file(file_path)
         
+        # Automatically calculate matches with all active job positions
+        try:
+            from services.matching_service import MatchingService
+            matching_service = MatchingService()
+            matches = matching_service.calculate_matches(candidate.id)
+            match_count = len(matches)
+        except Exception as e:
+            # Matching failure shouldn't block the upload response
+            print(f"Warning: Failed to calculate matches for candidate {candidate.id}: {str(e)}")
+            match_count = 0
+        
         # Prepare response
         response = {
             'candidate_id': candidate.id,
             'status': candidate.status,
-            'message': 'CV uploaded and processed successfully'
+            'message': 'CV uploaded and processed successfully',
+            'matches_calculated': match_count
         }
         
         # Add warnings if extraction had issues
@@ -266,6 +278,56 @@ def get_candidate(candidate_id):
             }), 500
         
         return jsonify(candidate_data), 200
+        
+    except Exception as e:
+        return jsonify({
+            'error': {
+                'code': 'INTERNAL_ERROR',
+                'message': f'An unexpected error occurred: {str(e)}'
+            }
+        }), 500
+
+
+@candidate_bp.route('/<candidate_id>', methods=['DELETE'])
+def delete_candidate(candidate_id):
+    """
+    Delete a candidate permanently.
+    
+    Endpoint: DELETE /api/candidates/<candidate_id>
+    
+    Returns:
+        200: Candidate deleted successfully
+        404: Candidate not found
+        500: Internal server error
+    """
+    try:
+        # Initialize candidate service
+        upload_folder = current_app.config['UPLOAD_FOLDER']
+        candidate_service = CandidateService(upload_folder)
+        
+        # Delete candidate
+        success, error = candidate_service.delete_candidate(candidate_id)
+        
+        if not success:
+            if 'not found' in error.lower():
+                return jsonify({
+                    'error': {
+                        'code': 'CANDIDATE_NOT_FOUND',
+                        'message': error
+                    }
+                }), 404
+            else:
+                return jsonify({
+                    'error': {
+                        'code': 'DELETE_ERROR',
+                        'message': error
+                    }
+                }), 500
+        
+        return jsonify({
+            'message': 'Candidate deleted successfully',
+            'candidate_id': candidate_id
+        }), 200
         
     except Exception as e:
         return jsonify({

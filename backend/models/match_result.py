@@ -116,11 +116,9 @@ class MatchResult(db.Model):
             'candidate_id': self.candidate_id,
             'job_id': self.job_id,
             'match_score': round(self.match_score, 2),
-            'breakdown': {
-                'skill_match': round(self.skill_match_score, 2),
-                'experience_match': round(self.experience_match_score, 2),
-                'education_match': round(self.education_match_score, 2)
-            },
+            'skill_match': round(self.skill_match_score, 2),
+            'experience_match': round(self.experience_match_score, 2),
+            'education_match': round(self.education_match_score, 2),
             'status': self.status,
             'screening_notes': self.screening_notes,
             'calculated_at': self.calculated_at.isoformat() if self.calculated_at else None
