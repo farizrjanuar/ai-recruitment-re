@@ -236,11 +236,14 @@ const Dashboard = () => {
                     <td>{candidate.email || 'N/A'}</td>
                     <td>
                       {candidate.skills && candidate.skills.length > 0
-                        ? candidate.skills.slice(0, 2).join(', ') +
+                        ? candidate.skills
+                            .slice(0, 2)
+                            .map(skill => typeof skill === 'object' ? skill.name : skill)
+                            .join(', ') +
                           (candidate.skills.length > 2 ? '...' : '')
                         : 'N/A'}
                     </td>
-                    <td>{candidate.experience_years || 0} years</td>
+                    <td>{candidate.total_experience_years || 0} years</td>
                     <td>
                       <span className={`status-badge status-${candidate.status}`}>
                         {candidate.status}

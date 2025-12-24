@@ -598,12 +598,15 @@ class CVParserService:
         
         matches = re.finditer(range_pattern, text, re.IGNORECASE)
         
+        from datetime import datetime
+        current_year = datetime.now().year
+        
         for match in matches:
             start_year = int(match.group(1))
             end_year_str = match.group(2).lower()
             
             if end_year_str in ['present', 'current']:
-                end_year = 2024  # Current year
+                end_year = current_year
             else:
                 end_year = int(end_year_str)
             
