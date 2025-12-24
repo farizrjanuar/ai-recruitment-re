@@ -22,7 +22,7 @@
   ],
   "build": {
     "env": {
-      "REACT_APP_API_URL": "https://rheotactic-lubricatory-bernadine.ngrok-free.dev"
+      "REACT_APP_API_URL": "https://rheotactic-lubricatory-bernadine.ngrok-free.dev/api"
     }
   }
 }
