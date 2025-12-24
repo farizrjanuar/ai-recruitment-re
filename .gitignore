@@ -34,3 +34,4 @@ CLEANUP_REPORT.md
 # PDF files
 *.pdf
 .env
+.vercel

@@ -27,7 +27,7 @@ class Config:
     ALLOWED_EXTENSIONS = {'pdf', 'docx', 'txt'}
     
     # CORS Configuration
-    CORS_ORIGINS = os.environ.get('CORS_ORIGINS', 'http://localhost:3000').split(',')
+    CORS_ORIGINS = os.environ.get('CORS_ORIGINS', 'http://localhost:3000,https://ai-recruitment-re.vercel.app').split(',')
     
     # ML Configuration
     SPACY_MODEL = 'en_core_web_sm'
