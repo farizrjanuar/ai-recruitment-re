@@ -111,10 +111,13 @@
   transition: background 0.3s;
   border: none;
   cursor: pointer;
+  margin: 2px;
+  display: inline-block;
 }
 
 .btn-view {
   background: #667eea;
+  margin-right: 8px;
 }
 
 .btn-view:hover {
