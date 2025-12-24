@@ -22,14 +22,13 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Documentation files (private)
-ML_EXPLANATION.md
-DATABASE_SCHEMA.md
-DATABASE_ERD.md
-AI_MODEL_EXPLANATION.md
-IMPLEMENTATION_REVIEW.md
-DATABASE_DEPLOYMENT_GUIDE.md
-CLEANUP_REPORT.md
+# Kiro specs folder
+.kiro/specs/ai-recruitment-system/
+
+# Documentation files (private) - ignore all markdown except README.md
+*.md
+!README.md
+!readme.md
 
 # PDF files
 *.pdf
